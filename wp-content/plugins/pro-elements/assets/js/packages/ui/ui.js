@@ -5769,38 +5769,56 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const StyledAlert = (0,_styles__WEBPACK_IMPORTED_MODULE_1__.styled)(_mui_material_Alert__WEBPACK_IMPORTED_MODULE_2__["default"])(({ theme, severity, color, variant }) => {
-  const variantsStyle = getVariantsStyle(severity, color, variant, theme);
+const StyledAlert = (0,_styles__WEBPACK_IMPORTED_MODULE_1__.styled)(_mui_material_Alert__WEBPACK_IMPORTED_MODULE_2__["default"])(({
+  theme,
+  severity,
+  color,
+  variant,
+  ownerState
+}) => {
+  const isSmall = ownerState.size === "small";
+  const variantsStyle = getVariantsColorStyle(severity, color, variant, theme);
+  const actionsStyle = getActionsStyle(ownerState, theme);
+  const titleTypography = isSmall ? {
+    ...theme.typography.caption,
+    fontWeight: theme.typography.subtitle2.fontWeight,
+    lineHeight: theme.typography.subtitle2.lineHeight
+  } : theme.typography.subtitle2;
+  const messageTypography = isSmall ? { ...theme.typography.caption, lineHeight: theme.typography.body2.lineHeight } : {};
   return {
     borderRadius: theme.shape.borderRadius * theme.shape.__unstableBorderRadiusMultipliers[2],
-    padding: theme.spacing(1.5, 2),
+    padding: isSmall ? theme.spacing(1.5) : theme.spacing(1.5, 2),
     "& .MuiAlert-message": {
       width: "100%",
       padding: 0,
-      minHeight: "31px",
+      minHeight: isSmall ? "28px" : "31px",
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: theme.spacing(1.5)
+      gap: isSmall ? theme.spacing(1) : theme.spacing(1.5),
+      ...messageTypography
     },
     "& .MuiAlertTitle-root": {
       marginBottom: 0,
       lineHeight: "inherit",
-      marginRight: theme.spacing(0.5),
-      ...theme.typography.subtitle2,
-      marginTop: 0
+      marginRight: isSmall ? theme.spacing(0.25) : theme.spacing(0.5),
+      marginTop: 0,
+      ...titleTypography
     },
     "& .MuiAlert-icon": {
-      padding: 0,
-      paddingTop: theme.spacing(0.5)
+      fontSize: isSmall ? "18px" : "22px",
+      padding: isSmall ? theme.spacing(0.25) : 0,
+      paddingTop: isSmall ? "5px" : theme.spacing(0.5),
+      marginRight: isSmall ? theme.spacing(0.5) : theme.spacing(1.5)
     },
     "& .MuiAlert-action": {
-      padding: 0,
-      marginLeft: theme.spacing(1)
+      padding: isSmall ? theme.spacing(0.25, 0, 0) : 0,
+      marginLeft: isSmall ? theme.spacing(0.5) : theme.spacing(1)
     },
     "&.MuiAlert-filledWarning": {
       color: theme.palette.common.white
     },
+    ...actionsStyle,
     ...variantsStyle
   };
 });
@@ -5825,18 +5843,19 @@ const StyledAlertContentInnerContainer = (0,_styles__WEBPACK_IMPORTED_MODULE_1__
 const AlertContent = ({ children, ...props }) => {
   return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(StyledAlertContent, { ...props }, /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(StyledAlertContentInnerContainer, null, children));
 };
-const StyledAlertActions = (0,_styles__WEBPACK_IMPORTED_MODULE_1__.styled)("div")(({ theme }) => ({
+const StyledAlertActions = (0,_styles__WEBPACK_IMPORTED_MODULE_1__.styled)("div")(({ theme, ownerState }) => ({
   display: "flex",
   alignItems: "flex-start",
   flexWrap: "wrap",
-  gap: theme.spacing(1)
+  gap: ownerState.size === "small" ? theme.spacing(0.5) : theme.spacing(1)
 }));
 const defaultProps = {
   closeText: "Close",
-  severity: "success"
+  severity: "success",
+  size: "medium"
 };
 const Alert = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps, ref) => {
-  const { onClose, action, secondaryAction, children, ...props } = { ...defaultProps, ...inProps };
+  const { onClose, action, secondaryAction, children, size, ...props } = { ...defaultProps, ...inProps };
   const hasActions = Boolean(action || secondaryAction);
   return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(
     StyledAlert,
@@ -5856,21 +5875,24 @@ const Alert = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps, 
           onClick: onClose,
           slotProps: {
             icon: {
-              fontSize: "small"
+              fontSize: size === "small" ? "tiny" : "small"
             }
           },
           title: props.closeText,
           "aria-label": props.closeText
         }
-      ) : false
+      ) : false,
+      ownerState: {
+        size
+      }
     },
     /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(AlertContent, { className: classNames.content }, children),
-    hasActions && /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(StyledAlertActions, { className: classNames.actions }, secondaryAction, action)
+    hasActions && /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(StyledAlertActions, { className: classNames.actions, ownerState: { size } }, secondaryAction, action)
   );
 });
 Alert.defaultProps = defaultProps;
 var Alert_default = Alert;
-function getVariantsStyle(severity, color, variant, theme) {
+function getVariantsColorStyle(severity, color, variant, theme) {
   const semanticColor = color || severity;
   if (!semanticColor) {
     return {};
@@ -5930,6 +5952,24 @@ function getVariantsStyle(severity, color, variant, theme) {
       [_styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_5__.LINK_PSEUDO_SELECTORS]: {
         color: theme.palette[semanticColor].main
       }
+    }
+  };
+}
+function getActionsStyle(ownerState, theme) {
+  if (ownerState.size !== "small") {
+    return {};
+  }
+  return {
+    "& .MuiButtonBase-root.MuiButton-root": {
+      fontSize: theme.typography.caption.fontSize,
+      letterSpacing: theme.typography.caption.letterSpacing,
+      lineHeight: 1
+    },
+    "& .MuiButtonBase-root.MuiButton-contained": {
+      padding: "8px 9px"
+    },
+    "& .MuiButtonBase-root.MuiButton-outlined": {
+      padding: "7px 9px"
     }
   };
 }
@@ -6634,6 +6674,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../styles/theme-config/constants */ "./node_modules/@elementor/ui/styles/theme-config/constants.js");
 /* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../styles */ "./node_modules/@elementor/ui/styles/styled.js");
 /* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../styles */ "./node_modules/@elementor/ui/styles/theme-config/colors.js");
+/* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../styles */ "./node_modules/@mui/material/styles/useTheme.js");
 /* harmony import */ var _ButtonGroup__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ButtonGroup */ "./node_modules/@mui/material/ButtonGroup/ButtonGroupContext.js");
 /* harmony import */ var _CircularProgress__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../CircularProgress */ "./node_modules/@elementor/ui/CircularProgress/CircularProgress.js");
 
@@ -6669,7 +6710,7 @@ const StyledButton = (0,_styles__WEBPACK_IMPORTED_MODULE_1__.styled)(_mui_materi
   }
   return null;
 });
-const getTextColor = (color = "primary", variant = "text") => {
+const getTextColor = (color = "primary", variant = "text", theme) => {
   if (!color) {
     return;
   }
@@ -6679,7 +6720,7 @@ const getTextColor = (color = "primary", variant = "text") => {
   if (variant === "contained") {
     return `${color}.contrastText`;
   }
-  if (_styles__WEBPACK_IMPORTED_MODULE_3__.inaccessibleColors.includes(color)) {
+  if (theme.palette.primary.__unstableAccessibleMain && _styles__WEBPACK_IMPORTED_MODULE_3__.inaccessibleColors.includes(color)) {
     return `${color}.${_styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_4__.UNSTABLE_ACCESSIBLE_MAIN_KEY}`;
   }
   return `${color}.main`;
@@ -6692,6 +6733,7 @@ const defaultProps = {
 const Button = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps, ref) => {
   const props = { ...defaultProps, ...inProps };
   const groupContext = react__WEBPACK_IMPORTED_MODULE_0___default().useContext(_ButtonGroup__WEBPACK_IMPORTED_MODULE_6__["default"]);
+  const theme = (0,_styles__WEBPACK_IMPORTED_MODULE_7__["default"])();
   const { sx = {}, ...rootProps } = getPropsWithLoadingState(props);
   let sxAdjustments = {};
   const adjustmentsSelector = rootProps.href ? _styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_4__.LINK_PSEUDO_SELECTORS : "&:hover,&:focus,&:active";
@@ -6699,7 +6741,7 @@ const Button = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps,
   const variant = rootProps.variant || groupContext?.variant;
   sxAdjustments = {
     [adjustmentsSelector]: {
-      color: getTextColor(color, variant)
+      color: getTextColor(color, variant, theme)
     }
   };
   return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(
@@ -9175,7 +9217,7 @@ const StyledPopper = (0,_styles__WEBPACK_IMPORTED_MODULE_3__.styled)(
     minWidth: 80,
     maxWidth: "initial",
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.shape.borderRadius * theme.shape.__unstableBorderRadiusMultipliers[2],
+    borderRadius: theme.shape.borderRadius * theme.shape.__unstableBorderRadiusMultipliers[3],
     color: theme.palette.text.primary,
     // The shadow angle should guarantee that the arrow is visible clearly.
     boxShadow: "0px 0px 10px 4px rgba(0,0,0,0.03),6px 0px 10px 4px rgba(0,0,0,0.03),-6px 0px 10px 4px rgba(0,0,0,0.03),0px 6px 10px 4px rgba(0,0,0,0.03)"
@@ -9237,11 +9279,6 @@ const Infotip = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps
          * The content of the element will still be available to assistive technologies.
          */
         role: "presentation",
-        /**
-         * We need to set `disablePortal` for accessibility when navigating with the keyboard.
-         * Otherwise, the Infotip will be closed when focusing its inner interactive elements.
-         */
-        disablePortal: true,
         ref: setPopperEl,
         ...PopperPropsOverrides,
         className: (0,clsx__WEBPACK_IMPORTED_MODULE_1__["default"])([[classNames.root, rootProps.className]])
@@ -9515,8 +9552,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _mui_material_Link__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @mui/material/Link */ "./node_modules/@mui/material/Link/Link.js");
+/* harmony import */ var _mui_material_Link__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @mui/material/Link */ "./node_modules/@mui/material/Link/Link.js");
 /* harmony import */ var _styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../styles/theme-config/constants */ "./node_modules/@elementor/ui/styles/theme-config/constants.js");
+/* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../styles */ "./node_modules/@mui/material/styles/useTheme.js");
+
 
 
 
@@ -9528,11 +9567,11 @@ const colorTransformations = {
   textSecondary: "text.secondary",
   error: "error.main"
 };
-const convertToSxSupportedColor = (color) => {
-  if (color === "primary.main" || color === "primary") {
+const convertToSxSupportedColor = (color, theme) => {
+  if (theme.palette.primary.__unstableAccessibleMain && (color === "primary.main" || color === "primary")) {
     return `primary.${_styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_1__.UNSTABLE_ACCESSIBLE_MAIN_KEY}`;
   }
-  if (color === "global.main") {
+  if (theme.palette.global?.__unstableAccessibleMain && color === "global.main") {
     return `global.${_styles_theme_config_constants__WEBPACK_IMPORTED_MODULE_1__.UNSTABLE_ACCESSIBLE_MAIN_KEY}`;
   }
   return colorTransformations[color] || color;
@@ -9542,9 +9581,10 @@ const defaultProps = {
 };
 const Link = react__WEBPACK_IMPORTED_MODULE_0___default().forwardRef((inProps, ref) => {
   const { sx = {}, ...props } = { ...defaultProps, ...inProps };
-  const sxSupportedColor = convertToSxSupportedColor(props.color);
+  const theme = (0,_styles__WEBPACK_IMPORTED_MODULE_2__["default"])();
+  const sxSupportedColor = convertToSxSupportedColor(props.color, theme);
   return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(
-    _mui_material_Link__WEBPACK_IMPORTED_MODULE_2__["default"],
+    _mui_material_Link__WEBPACK_IMPORTED_MODULE_3__["default"],
     {
       ...props,
       color: sxSupportedColor,
@@ -13377,21 +13417,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _mui_material_styles__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @mui/material/styles */ "./node_modules/@mui/material/styles/ThemeProvider.js");
-/* harmony import */ var _theme_config_light__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./theme-config/light */ "./node_modules/@elementor/ui/styles/theme-config/light.js");
-/* harmony import */ var _theme_config_dark__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./theme-config/dark */ "./node_modules/@elementor/ui/styles/theme-config/dark.js");
-/* harmony import */ var _theme_config_constants__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./theme-config/constants */ "./node_modules/@elementor/ui/styles/theme-config/constants.js");
-/* harmony import */ var _emotion_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @emotion/react */ "./node_modules/@emotion/react/dist/emotion-element-7a1343fa.browser.development.esm.js");
-/* harmony import */ var _mui_material_useMediaQuery__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @mui/material/useMediaQuery */ "./node_modules/@mui/system/esm/useMediaQuery/useMediaQuery.js");
-/* harmony import */ var _mui_utils_deepmerge__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @mui/utils/deepmerge */ "./node_modules/@mui/utils/esm/deepmerge/deepmerge.js");
+/* harmony import */ var _mui_material_styles__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @mui/material/styles */ "./node_modules/@mui/material/styles/ThemeProvider.js");
+/* harmony import */ var _theme_config_light__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./theme-config/light */ "./node_modules/@elementor/ui/styles/theme-config/light.js");
+/* harmony import */ var _theme_config_dark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./theme-config/dark */ "./node_modules/@elementor/ui/styles/theme-config/dark.js");
+/* harmony import */ var _theme_config_constants__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./theme-config/constants */ "./node_modules/@elementor/ui/styles/theme-config/constants.js");
+/* harmony import */ var _emotion_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @emotion/react */ "./node_modules/@emotion/react/dist/emotion-element-7a1343fa.browser.development.esm.js");
+/* harmony import */ var _mui_material_useMediaQuery__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @mui/material/useMediaQuery */ "./node_modules/@mui/system/esm/useMediaQuery/useMediaQuery.js");
+/* harmony import */ var _mui_utils_deepmerge__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @mui/utils/deepmerge */ "./node_modules/@mui/utils/esm/deepmerge/deepmerge.js");
 /* harmony import */ var _theme_config_colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./theme-config/colors */ "./node_modules/@elementor/ui/styles/theme-config/colors.js");
-/* harmony import */ var _createTheme__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./createTheme */ "./node_modules/@elementor/ui/styles/createTheme.js");
-/* harmony import */ var _theme_config_palette_overrides_marketing_suite_palette__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./theme-config/palette-overrides/marketing-suite-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/marketing-suite-palette.js");
-/* harmony import */ var _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./theme-config/palette-overrides/hub-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/hub-palette.js");
-/* harmony import */ var _theme_config_palette_overrides_unstable_light_palette__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./theme-config/palette-overrides/unstable-light-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/unstable-light-palette.js");
-/* harmony import */ var _theme_config_palette_overrides_unstable_dark_palette__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./theme-config/palette-overrides/unstable-dark-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/unstable-dark-palette.js");
-/* harmony import */ var _context_theme_config_provider__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./context/theme-config-provider */ "./node_modules/@elementor/ui/styles/context/theme-config-provider.js");
-/* harmony import */ var _theme_config_overrides__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./theme-config/overrides */ "./node_modules/@elementor/ui/styles/theme-config/overrides/index.js");
+/* harmony import */ var _createTheme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./createTheme */ "./node_modules/@elementor/ui/styles/createTheme.js");
+/* harmony import */ var _theme_config_palette_overrides_marketing_suite_palette__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./theme-config/palette-overrides/marketing-suite-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/marketing-suite-palette.js");
+/* harmony import */ var _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./theme-config/palette-overrides/hub-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/hub-palette.js");
+/* harmony import */ var _theme_config_palette_overrides_unstable_light_palette__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./theme-config/palette-overrides/unstable-light-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/unstable-light-palette.js");
+/* harmony import */ var _theme_config_palette_overrides_unstable_dark_palette__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./theme-config/palette-overrides/unstable-dark-palette */ "./node_modules/@elementor/ui/styles/theme-config/palette-overrides/unstable-dark-palette.js");
+/* harmony import */ var _context_theme_config_provider__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./context/theme-config-provider */ "./node_modules/@elementor/ui/styles/context/theme-config-provider.js");
+/* harmony import */ var _theme_config_overrides__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./theme-config/overrides */ "./node_modules/@elementor/ui/styles/theme-config/overrides/index.js");
+/* harmony import */ var _defineCustomTheme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./defineCustomTheme */ "./node_modules/@elementor/ui/styles/defineCustomTheme.js");
+
 
 
 
@@ -13412,27 +13454,58 @@ __webpack_require__.r(__webpack_exports__);
 
 const themeCacheMap = /* @__PURE__ */ new Map();
 const __internalClearThemeCache = () => themeCacheMap.clear();
+const getCustomTheme = (customTheme, dark = false, rtl = false) => {
+  const themeName = customTheme.name;
+  if (!themeName) {
+    throw new Error("Custom theme must have a name");
+  }
+  const cacheKey = `${customTheme.name}-${dark}-${rtl}`;
+  if (themeCacheMap.has(cacheKey)) {
+    const cachedTheme = themeCacheMap.get(cacheKey);
+    return cachedTheme;
+  }
+  const themeArgs = {
+    // These typography customizations exist in theme-config/base.ts and are currently applied to all themes.
+    // We need to evaluate whether they can be removed in the future (this is also related to the CardHeader title variant being changed from subtitle2 to subtitle1).
+    typography: {
+      subtitle1: {
+        fontWeight: 500,
+        lineHeight: 1.3
+      },
+      subtitle2: {
+        lineHeight: 1.3
+      }
+    }
+  };
+  if (rtl) {
+    themeArgs.direction = "rtl";
+  }
+  const generatedTheme = (0,_defineCustomTheme__WEBPACK_IMPORTED_MODULE_2__["default"])(customTheme, dark);
+  const theme = (0,_createTheme__WEBPACK_IMPORTED_MODULE_3__.createTheme)(generatedTheme, themeArgs);
+  themeCacheMap.set(cacheKey, theme);
+  return theme;
+};
 const getTheme = ({ palette = "default", rtl = false, isDarkMode = false } = {}) => {
   const cacheKey = `${palette}-${isDarkMode}-${rtl}`;
   if (themeCacheMap.has(cacheKey)) {
     const cachedTheme = themeCacheMap.get(cacheKey);
     return cachedTheme;
   }
-  const themeData = isDarkMode ? _theme_config_dark__WEBPACK_IMPORTED_MODULE_2__.darkThemeConfig : _theme_config_light__WEBPACK_IMPORTED_MODULE_3__.lightThemeConfig;
+  const themeData = isDarkMode ? _theme_config_dark__WEBPACK_IMPORTED_MODULE_4__.darkThemeConfig : _theme_config_light__WEBPACK_IMPORTED_MODULE_5__.lightThemeConfig;
   const themeArgs = {};
   if (palette === "marketing-suite") {
-    themeArgs.palette = _theme_config_palette_overrides_marketing_suite_palette__WEBPACK_IMPORTED_MODULE_4__["default"];
+    themeArgs.palette = _theme_config_palette_overrides_marketing_suite_palette__WEBPACK_IMPORTED_MODULE_6__["default"];
   }
   if (palette === "hub") {
-    themeArgs.palette = _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_5__["default"];
+    themeArgs.palette = _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_7__["default"];
     themeArgs.shape = {
       borderRadius: 8,
       __unstableBorderRadiusMultipliers: [0, 0.5, 1, 1.5, 2.5]
     };
-    themeArgs.shadows = _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_5__.hubShadows;
+    themeArgs.shadows = _theme_config_palette_overrides_hub_palette__WEBPACK_IMPORTED_MODULE_7__.hubShadows;
   }
   if (palette === "unstable") {
-    themeArgs.palette = isDarkMode ? _theme_config_palette_overrides_unstable_dark_palette__WEBPACK_IMPORTED_MODULE_6__["default"] : _theme_config_palette_overrides_unstable_light_palette__WEBPACK_IMPORTED_MODULE_7__["default"];
+    themeArgs.palette = isDarkMode ? _theme_config_palette_overrides_unstable_dark_palette__WEBPACK_IMPORTED_MODULE_8__["default"] : _theme_config_palette_overrides_unstable_light_palette__WEBPACK_IMPORTED_MODULE_9__["default"];
     themeArgs.shape = {
       borderRadius: 8,
       __unstableBorderRadiusMultipliers: [0, 0.5, 1, 1.5, 2.5]
@@ -13441,7 +13514,7 @@ const getTheme = ({ palette = "default", rtl = false, isDarkMode = false } = {})
   if (rtl) {
     themeArgs.direction = "rtl";
   }
-  const theme = (0,_createTheme__WEBPACK_IMPORTED_MODULE_8__.createTheme)(themeData, themeArgs);
+  const theme = (0,_createTheme__WEBPACK_IMPORTED_MODULE_3__.createTheme)(themeData, themeArgs);
   themeCacheMap.set(cacheKey, theme);
   return theme;
 };
@@ -13456,26 +13529,27 @@ const mergeThemeWithOverrides = (theme, overrides) => {
       validOverrides[override] = overrides[override];
     }
   });
-  return (0,_mui_utils_deepmerge__WEBPACK_IMPORTED_MODULE_9__["default"])(theme, validOverrides, { clone: true });
+  return (0,_mui_utils_deepmerge__WEBPACK_IMPORTED_MODULE_10__["default"])(theme, validOverrides, { clone: true });
 };
-const ThemeProvider = (0,_emotion_react__WEBPACK_IMPORTED_MODULE_10__.w)(
-  ({ colorScheme, palette, children, overrides }, directionCache) => {
-    const themeConfig = (0,_context_theme_config_provider__WEBPACK_IMPORTED_MODULE_11__.useThemeConfig)();
-    const rtl = directionCache.key === _theme_config_constants__WEBPACK_IMPORTED_MODULE_12__.RTL_CACHE_KEY;
-    const currentPalette = palette || themeConfig?.palette;
+const ThemeProvider = (0,_emotion_react__WEBPACK_IMPORTED_MODULE_11__.w)(
+  ({ colorScheme, palette, children, overrides, unstableThemeV0 }, directionCache) => {
+    const themeConfig = (0,_context_theme_config_provider__WEBPACK_IMPORTED_MODULE_12__.useThemeConfig)();
+    const rtl = directionCache.key === _theme_config_constants__WEBPACK_IMPORTED_MODULE_13__.RTL_CACHE_KEY;
     const currentColorScheme = colorScheme || themeConfig?.colorScheme || "auto";
-    const prefersDarkMode = (0,_mui_material_useMediaQuery__WEBPACK_IMPORTED_MODULE_13__["default"])("(prefers-color-scheme: dark)");
+    const prefersDarkMode = (0,_mui_material_useMediaQuery__WEBPACK_IMPORTED_MODULE_14__["default"])("(prefers-color-scheme: dark)");
     const isDarkMode = currentColorScheme === "auto" && prefersDarkMode || currentColorScheme === "dark";
-    const currentOverrides = (0,_theme_config_overrides__WEBPACK_IMPORTED_MODULE_14__.getOverrides)(overrides, themeConfig?.overrides);
-    let theme = getTheme({
+    const currentOverrides = (0,_theme_config_overrides__WEBPACK_IMPORTED_MODULE_15__.getOverrides)(overrides, themeConfig?.overrides);
+    const themeName = unstableThemeV0?.name || palette || themeConfig?.themeName;
+    const customTheme = unstableThemeV0 || themeConfig?.customTheme;
+    let theme = customTheme ? getCustomTheme(customTheme, isDarkMode, rtl) : getTheme({
       rtl,
       isDarkMode,
-      palette: currentPalette
+      palette: palette || themeConfig?.themeName
     });
     if (currentOverrides) {
       theme = mergeThemeWithOverrides(theme, currentOverrides);
     }
-    return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_context_theme_config_provider__WEBPACK_IMPORTED_MODULE_11__.ThemeConfigProvider, { value: { colorScheme, palette, overrides: currentOverrides } }, /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_mui_material_styles__WEBPACK_IMPORTED_MODULE_15__["default"], { theme }, children));
+    return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_context_theme_config_provider__WEBPACK_IMPORTED_MODULE_12__.ThemeConfigProvider, { value: { colorScheme, themeName, overrides: currentOverrides, customTheme } }, /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_mui_material_styles__WEBPACK_IMPORTED_MODULE_16__["default"], { theme }, children));
   }
 );
 
@@ -13543,6 +13617,126 @@ const createTheme = (options, ...args) => {
 
 /***/ }),
 
+/***/ "./node_modules/@elementor/ui/styles/createThemeProvider.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@elementor/ui/styles/createThemeProvider.js ***!
+  \******************************************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ createThemeProvider; }
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ThemeProvider__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ThemeProvider */ "./node_modules/@elementor/ui/styles/ThemeProvider.js");
+
+
+
+function createThemeProvider(theme) {
+  return (props) => {
+    const { children, ...rest } = props;
+    return /* @__PURE__ */ react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_ThemeProvider__WEBPACK_IMPORTED_MODULE_1__.ThemeProvider, { unstableThemeV0: theme, ...rest }, children);
+  };
+}
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@elementor/ui/styles/defineCustomTheme.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/@elementor/ui/styles/defineCustomTheme.js ***!
+  \****************************************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ defineCustomTheme; }
+/* harmony export */ });
+/* harmony import */ var _theme_config_light__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./theme-config/light */ "./node_modules/@elementor/ui/styles/theme-config/light.js");
+/* harmony import */ var _theme_config_dark__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./theme-config/dark */ "./node_modules/@elementor/ui/styles/theme-config/dark.js");
+/* harmony import */ var _style_configs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style-configs */ "./node_modules/@elementor/ui/styles/style-configs/index.js");
+
+
+
+
+function defineCustomTheme(customTheme, dark) {
+  const validTheme = {
+    components: _style_configs__WEBPACK_IMPORTED_MODULE_0__["default"]
+  };
+  if (dark && customTheme.palette?.dark) {
+    validTheme.palette = {
+      ..._theme_config_dark__WEBPACK_IMPORTED_MODULE_1__.darkThemeConfig.palette,
+      ...customTheme.palette.dark
+    };
+    validTheme.palette.mode = "dark";
+  } else if (customTheme.palette?.light) {
+    validTheme.palette = {
+      ..._theme_config_light__WEBPACK_IMPORTED_MODULE_2__.lightThemeConfig.palette,
+      ...customTheme.palette.light
+    };
+  }
+  if (customTheme.shadows) {
+    validTheme.shadows = customTheme.shadows;
+  }
+  if (customTheme.shape) {
+    validTheme.shape = customTheme.shape;
+  }
+  if (customTheme.typography) {
+    validTheme.typography = ensureAllowedTypography(customTheme.typography);
+  }
+  if (customTheme.zIndex) {
+    validTheme.zIndex = customTheme.zIndex;
+  }
+  return validTheme;
+}
+function ensureAllowedTypography(typographyConfig = {}) {
+  if (!typographyConfig) {
+    return {};
+  }
+  const typographySchema = {
+    h1: ["fontFamily", "fontSize", "fontWeight"],
+    h2: ["fontFamily", "fontSize", "fontWeight"],
+    h3: ["fontFamily", "fontSize", "fontWeight"],
+    h4: ["fontFamily", "fontSize", "fontWeight"],
+    h5: ["fontFamily", "fontSize", "fontWeight"],
+    h6: ["fontFamily", "fontSize", "fontWeight"],
+    subtitle1: ["fontFamily"],
+    subtitle2: ["fontFamily"],
+    body1: ["fontFamily"],
+    body2: ["fontFamily"],
+    caption: ["fontFamily"],
+    overline: ["fontFamily"],
+    button: ["fontFamily", "textTransform"]
+  };
+  const validTypography = {};
+  Object.entries(typographyConfig).forEach(([key, variantConfig]) => {
+    const variantName = key;
+    if (!typographySchema[variantName]) {
+      return;
+    }
+    const allowedProps = new Set(typographySchema[variantName]);
+    const validConfigEntries = Object.entries(variantConfig).filter(([prop]) => {
+      const configPropName = prop;
+      return allowedProps.has(configPropName);
+    });
+    if (validConfigEntries.length === 0) {
+      return;
+    }
+    validTypography[variantName] = Object.fromEntries(validConfigEntries);
+  });
+  return validTypography;
+}
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@elementor/ui/styles/index.js":
 /*!****************************************************!*\
   !*** ./node_modules/@elementor/ui/styles/index.js ***!
@@ -13592,6 +13786,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   shouldSkipGeneratingVar: function() { return /* reexport safe */ _mui_material_styles__WEBPACK_IMPORTED_MODULE_0__.shouldSkipGeneratingVar; },
 /* harmony export */   styled: function() { return /* reexport safe */ _styled__WEBPACK_IMPORTED_MODULE_3__.styled; },
 /* harmony export */   themePaletteSemanticColors: function() { return /* reexport safe */ _ThemeProvider__WEBPACK_IMPORTED_MODULE_5__.themePaletteSemanticColors; },
+/* harmony export */   unstableCreateThemeProvider: function() { return /* reexport safe */ _createThemeProvider__WEBPACK_IMPORTED_MODULE_6__["default"]; },
 /* harmony export */   unstable_createMuiStrictModeTheme: function() { return /* reexport safe */ _mui_material_styles__WEBPACK_IMPORTED_MODULE_0__.unstable_createMuiStrictModeTheme; },
 /* harmony export */   unstable_getUnit: function() { return /* reexport safe */ _mui_material_styles__WEBPACK_IMPORTED_MODULE_0__.unstable_getUnit; },
 /* harmony export */   unstable_toUnitless: function() { return /* reexport safe */ _mui_material_styles__WEBPACK_IMPORTED_MODULE_0__.unstable_toUnitless; },
@@ -13607,6 +13802,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _styled__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./styled */ "./node_modules/@elementor/ui/styles/styled.js");
 /* harmony import */ var _ThemeProvider__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ThemeProvider */ "./node_modules/@elementor/ui/styles/ThemeProvider.js");
 /* harmony import */ var _ThemeProvider__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ThemeProvider */ "./node_modules/@elementor/ui/styles/theme-config/colors.js");
+/* harmony import */ var _createThemeProvider__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./createThemeProvider */ "./node_modules/@elementor/ui/styles/createThemeProvider.js");
+
 
 
 
@@ -16010,22 +16207,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   styled: function() { return /* binding */ styled; }
 /* harmony export */ });
-/* harmony import */ var _mui_material_styles__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @mui/material/styles */ "./node_modules/@mui/material/styles/styled.js");
+/* harmony import */ var _mui_material_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @mui/material/styles */ "./node_modules/@mui/material/styles/identifier.js");
+/* harmony import */ var _mui_system_createStyled__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @mui/system/createStyled */ "./node_modules/@mui/system/createStyled.js");
+/* harmony import */ var _createTheme__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./createTheme */ "./node_modules/@elementor/ui/styles/createTheme.js");
 
 
+
+
+function slotShouldForwardProp(prop) {
+  return prop !== "ownerState" && prop !== "theme" && prop !== "sx" && prop !== "as";
+}
+const rootShouldForwardProp = (prop) => slotShouldForwardProp(prop) && prop !== "classes";
+const defaultTheme = (0,_createTheme__WEBPACK_IMPORTED_MODULE_0__.createTheme)({});
+const styledWithCustomDefaultTheme = (0,_mui_system_createStyled__WEBPACK_IMPORTED_MODULE_1__["default"])({
+  themeId: _mui_material_styles__WEBPACK_IMPORTED_MODULE_2__["default"],
+  defaultTheme,
+  rootShouldForwardProp
+});
 const styled = (component, inOptions) => {
   if (!inOptions?.shouldForwardProp) {
-    return (0,_mui_material_styles__WEBPACK_IMPORTED_MODULE_0__["default"])(component, inOptions);
+    return styledWithCustomDefaultTheme(component, inOptions);
   }
-  const shouldForwardPropSource = inOptions.shouldForwardProp;
+  const customShouldForwardProp = inOptions.shouldForwardProp;
   const options = { ...inOptions };
   options.shouldForwardProp = (prop) => {
-    if (prop === "sx") {
-      return false;
-    }
-    return shouldForwardPropSource(prop) ?? true;
+    return rootShouldForwardProp(prop) && customShouldForwardProp(prop);
   };
-  return (0,_mui_material_styles__WEBPACK_IMPORTED_MODULE_0__["default"])(component, options);
+  return styledWithCustomDefaultTheme(component, options);
 };
 
 
@@ -17685,6 +17893,15 @@ __webpack_require__.r(__webpack_exports__);
 
 const { slots, classNames } = (0,_styles__WEBPACK_IMPORTED_MODULE_2__.createSlots)("FloatingActionBar", ["actions", "popper"]);
 const PopperRoot = (0,_styles__WEBPACK_IMPORTED_MODULE_3__.styled)(_Popper__WEBPACK_IMPORTED_MODULE_4__["default"], slots.popper)({});
+const allowedPositions = /* @__PURE__ */ new Set([
+  "top",
+  "bottom",
+  "top-start",
+  "top-end",
+  "bottom-start",
+  "bottom-end"
+]);
+const PLACEMENT_DEFAULT = "top-end";
 const Actions = (0,_styles__WEBPACK_IMPORTED_MODULE_3__.styled)(
   "div",
   slots.actions
@@ -17775,7 +17992,7 @@ const FloatingActionBar = (0,react__WEBPACK_IMPORTED_MODULE_0__.forwardRef)((inP
       role: "presentation",
       ...popperDisplayProps,
       className: classNames.popper,
-      placement: placement === "bottom-start" ? "bottom-start" : "top-end",
+      placement: allowedPositions.has(placement) ? placement : PLACEMENT_DEFAULT,
       modifiers: [
         /**
          * Popper is using translate3d by default in order to calculate the position of the popper.
@@ -21511,6 +21728,11 @@ function handleInterpolation(mergedProps, registered, interpolation) {
           }
 
           var styles = serializedStyles.styles + ";";
+
+          if (serializedStyles.map !== undefined) {
+            styles += serializedStyles.map;
+          }
+
           return styles;
         }
 
@@ -21617,8 +21839,14 @@ function createStringFromObject(mergedProps, registered, obj) {
   return string;
 }
 
-var labelPattern = /label:\s*([^\s;{]+)\s*(;|$)/g; // this is the cursor for keyframes
+var labelPattern = /label:\s*([^\s;\n{]+)\s*(;|$)/g;
+var sourceMapPattern;
+
+{
+  sourceMapPattern = /\/\*#\ssourceMappingURL=data:application\/json;\S+\s+\*\//g;
+} // this is the cursor for keyframes
 // keyframes are stored on the SerializedStyles object as a linked list
+
 
 var cursor;
 function serializeStyles(args, registered, mergedProps) {
@@ -21657,6 +21885,15 @@ function serializeStyles(args, registered, mergedProps) {
 
       styles += templateStringsArr[i];
     }
+  }
+
+  var sourceMap;
+
+  {
+    styles = styles.replace(sourceMapPattern, function (match) {
+      sourceMap = match;
+      return '';
+    });
   } // using a global regex with .exec is stateful so lastIndex has to be reset each time
 
 
@@ -21674,6 +21911,7 @@ function serializeStyles(args, registered, mergedProps) {
     var devStyles = {
       name: name,
       styles: styles,
+      map: sourceMap,
       next: cursor,
       toString: function toString() {
         return "You have tried to stringify object returned from `css` function. It isn't supposed to be used directly (e.g. as value of the `className` prop), but rather handed to emotion so it can handle it (e.g. as value of `css` prop).";
@@ -21733,7 +21971,6 @@ var unitlessKeys = {
   opacity: 1,
   order: 1,
   orphans: 1,
-  scale: 1,
   tabSize: 1,
   widows: 1,
   zIndex: 1,
@@ -101103,7 +101340,7 @@ function withinMaxClamp(min, value, max) {
 /***/ (function(module, exports) {
 
 /*!
- * CSSJanus. https://www.mediawiki.org/wiki/CSSJanus
+ * CSSJanus. https://github.com/cssjanus/cssjanus
  *
  * Copyright 2014 Trevor Parscal
  * Copyright 2010 Roan Kattouw
@@ -101200,8 +101437,6 @@ function CSSJanus() {
 	var
 		// Tokens
 		temporaryToken = '`TMP`',
-		temporaryLtrToken = '`TMPLTR`',
-		temporaryRtlToken = '`TMPRTL`',
 		noFlipSingleToken = '`NOFLIP_SINGLE`',
 		noFlipClassToken = '`NOFLIP_CLASS`',
 		commentToken = '`COMMENT`',
@@ -101223,12 +101458,6 @@ function CSSJanus() {
 		identPattern = '-?' + nmstartPattern + nmcharPattern + '*',
 		quantPattern = numPattern + '(?:\\s*' + unitPattern + '|' + identPattern + ')?',
 		signedQuantPattern = '((?:-?' + quantPattern + ')|(?:inherit|auto))',
-		signedQuantSimplePattern = '(?:-?' + numPattern + '(?:\\s*' + unitPattern + ')?)',
-		mathOperatorsPattern = '(?:\\+|\\-|\\*|\\/)',
-		allowedCharsPattern = '(?:\\(|\\)|\\t| )',
-		calcEquationPattern = '(?:' + allowedCharsPattern + '|' + signedQuantSimplePattern + '|' + mathOperatorsPattern + '){3,}',
-		calcPattern = '(?:calc\\((?:' + calcEquationPattern + ')\\))',
-		signedQuantCalcPattern = '((?:-?' + quantPattern + ')|(?:inherit|auto)|' + calcPattern + ')',
 		fourNotationQuantPropsPattern = '((?:margin|padding|border-width)\\s*:\\s*)',
 		fourNotationColorPropsPattern = '((?:-color|border-style)\\s*:\\s*)',
 		colorPattern = '(#?' + nmcharPattern + '+|(?:rgba?|hsla?)\\([ \\d.,%-]+\\))',
@@ -101236,7 +101465,7 @@ function CSSJanus() {
 		// the intended match. This affects 'urlCharsPattern' and 'lookAheadNotOpenBracePattern'.
 		// We have not yet found this problem on Node.js, but we have on PHP 7, where it was
 		// mitigated by using a possessive quantifier ("*+"), which are not supported in JS.
-		// See <https://phabricator.wikimedia.org/T215746#4944830>.
+		// See <https://github.com/cssjanus/php-cssjanus/issues/14> and <https://phabricator.wikimedia.org/T215746#4944830>.
 		urlCharsPattern = '(?:' + urlSpecialCharsPattern + '|' + nonAsciiPattern + '|' + escapePattern + ')*?',
 		lookAheadNotLetterPattern = '(?![a-zA-Z])',
 		lookAheadNotOpenBracePattern = '(?!(' + nmcharPattern + '|\\r?\\n|\\s|#|\\:|\\.|\\,|\\+|>|~|\\(|\\)|\\[|\\]|=|\\*=|~=|\\^=|\'[^\']*\'|"[^"]*"|' + commentToken + ')*?{)',
@@ -101245,8 +101474,6 @@ function CSSJanus() {
 		suffixPattern = '(\\s*(?:!important\\s*)?[;}])',
 		// Regular expressions
 		temporaryTokenRegExp = /`TMP`/g,
-		temporaryLtrTokenRegExp = /`TMPLTR`/g,
-		temporaryRtlTokenRegExp = /`TMPRTL`/g,
 		commentRegExp = new RegExp( commentPattern, 'gi' ),
 		noFlipSingleRegExp = new RegExp( '(' + noFlipPattern + lookAheadNotOpenBracePattern + '[^;}]+;?)', 'gi' ),
 		noFlipClassRegExp = new RegExp( '(' + noFlipPattern + charsWithinSelectorPattern + '})', 'gi' ),
@@ -101256,13 +101483,11 @@ function CSSJanus() {
 		rightRegExp = new RegExp( nonLetterPattern + '(right)' + lookAheadNotLetterPattern + lookAheadNotClosingParenPattern + lookAheadNotOpenBracePattern, 'gi' ),
 		leftInUrlRegExp = new RegExp( nonLetterPattern + '(left)' + lookAheadForClosingParenPattern, 'gi' ),
 		rightInUrlRegExp = new RegExp( nonLetterPattern + '(right)' + lookAheadForClosingParenPattern, 'gi' ),
-		ltrDirSelector = /(:dir\( *)ltr( *\))/g,
-		rtlDirSelector = /(:dir\( *)rtl( *\))/g,
 		ltrInUrlRegExp = new RegExp( nonLetterPattern + '(ltr)' + lookAheadForClosingParenPattern, 'gi' ),
 		rtlInUrlRegExp = new RegExp( nonLetterPattern + '(rtl)' + lookAheadForClosingParenPattern, 'gi' ),
 		cursorEastRegExp = new RegExp( nonLetterPattern + '([ns]?)e-resize', 'gi' ),
 		cursorWestRegExp = new RegExp( nonLetterPattern + '([ns]?)w-resize', 'gi' ),
-		fourNotationQuantRegExp = new RegExp( fourNotationQuantPropsPattern + signedQuantCalcPattern + '(\\s+)' + signedQuantCalcPattern + '(\\s+)' + signedQuantCalcPattern + '(\\s+)' + signedQuantCalcPattern + suffixPattern, 'gi' ),
+		fourNotationQuantRegExp = new RegExp( fourNotationQuantPropsPattern + signedQuantPattern + '(\\s+)' + signedQuantPattern + '(\\s+)' + signedQuantPattern + '(\\s+)' + signedQuantPattern + suffixPattern, 'gi' ),
 		fourNotationColorRegExp = new RegExp( fourNotationColorPropsPattern + colorPattern + '(\\s+)' + colorPattern + '(\\s+)' + colorPattern + '(\\s+)' + colorPattern + suffixPattern, 'gi' ),
 		bgHorizontalPercentageRegExp = new RegExp( '(background(?:-position)?\\s*:\\s*(?:[^:;}\\s]+\\s+)*?)(' + quantPattern + ')', 'gi' ),
 		bgHorizontalPercentageXRegExp = new RegExp( '(background-position-x\\s*:\\s*)(-?' + numPattern + '%)', 'gi' ),
@@ -101347,12 +101572,8 @@ function CSSJanus() {
 	function calculateNewBorderRadius( match, pre ) {
 		var values,
 			args = [].slice.call( arguments ),
-			firstGroup = args.slice( 2, 6 ).filter( function ( val ) {
-				return val;
-			} ),
-			secondGroup = args.slice( 6, 10 ).filter( function ( val ) {
-				return val;
-			} ),
+			firstGroup = args.slice( 2, 6 ).filter( function ( val ) { return val; } ),
+			secondGroup = args.slice( 6, 10 ).filter( function ( val ) { return val; } ),
 			post = args[ 10 ] || '';
 
 		if ( secondGroup.length ) {
@@ -101458,13 +101679,9 @@ function CSSJanus() {
 			if ( options.transformDirInUrl ) {
 				// Replace 'ltr' with 'rtl' and vice versa in background URLs
 				css = css
-					.replace( ltrDirSelector, '$1' + temporaryLtrToken + '$2' )
-					.replace( rtlDirSelector, '$1' + temporaryRtlToken + '$2' )
 					.replace( ltrInUrlRegExp, '$1' + temporaryToken )
 					.replace( rtlInUrlRegExp, '$1ltr' )
-					.replace( temporaryTokenRegExp, 'rtl' )
-					.replace( temporaryLtrTokenRegExp, 'ltr' )
-					.replace( temporaryRtlTokenRegExp, 'rtl' );
+					.replace( temporaryTokenRegExp, 'rtl' );
 			}
 			if ( options.transformEdgeInUrl ) {
 				// Replace 'left' with 'right' and vice versa in background URLs
@@ -110900,6 +111117,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   touchRippleClasses: function() { return /* reexport safe */ _ButtonBase__WEBPACK_IMPORTED_MODULE_37__.touchRippleClasses; },
 /* harmony export */   typographyClasses: function() { return /* reexport safe */ _Typography__WEBPACK_IMPORTED_MODULE_258__.typographyClasses; },
 /* harmony export */   unstable: function() { return /* reexport safe */ _unstable__WEBPACK_IMPORTED_MODULE_262__["default"]; },
+/* harmony export */   unstableCreateThemeProvider: function() { return /* reexport safe */ _styles__WEBPACK_IMPORTED_MODULE_261__.unstableCreateThemeProvider; },
 /* harmony export */   unstable_createMuiStrictModeTheme: function() { return /* reexport safe */ _styles__WEBPACK_IMPORTED_MODULE_261__.unstable_createMuiStrictModeTheme; },
 /* harmony export */   unstable_getUnit: function() { return /* reexport safe */ _styles__WEBPACK_IMPORTED_MODULE_261__.unstable_getUnit; },
 /* harmony export */   unstable_toUnitless: function() { return /* reexport safe */ _styles__WEBPACK_IMPORTED_MODULE_261__.unstable_toUnitless; },
